@@ -1,0 +1,8 @@
+/admin/orders_fragment.php  /admin/orders_fragment  200
+/client/order_status.php    /client/order_status    200
+/client/order_feed.php      /client/order_feed      200
+/client/menu_status.php     /client/menu_status     200
+/client/last_order_check.php /client/last_order_check 200
+/client/place_order.php     /client/place_order     200
+/admin/login.php            /admin/login            200
+/admin/logout.php           /admin/logout           200

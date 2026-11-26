@@ -1,0 +1,12 @@
+{
+  "name": "sparks-aurora",
+  "compatibility_date": "2024-09-23",
+  "pages_build_output_dir": "public",
+  "d1_databases": [
+    {
+      "binding": "sparks_cafe_db",
+      "database_name": "sparks-cafe-db",
+      "database_id": "b2721f11-6bf3-4488-8a4a-28e41ae2780d"
+    }
+  ]
+}

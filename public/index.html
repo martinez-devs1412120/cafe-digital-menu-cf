@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sparks Café</title>
+  <meta http-equiv="refresh" content="0;url=/client/">
+  <script>
+    // Preserve any query string (e.g. ?t=<table-token>) that the meta-refresh would drop.
+    var qs = window.location.search;
+    if (qs) window.location.replace('/client/' + qs);
+    else window.location.replace('/client/');
+  </script>
+</head>
+<body>
+  <p>Redirecting… <a href="/client/">click here</a> if nothing happens.</p>
+</body>
+</html>
