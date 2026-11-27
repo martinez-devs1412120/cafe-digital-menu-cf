@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npx wrangler pages dev public --d1=sparks_cafe_db",
+    "dev": "npx wrangler pages dev public",
     "deploy": "npx wrangler pages deploy public --project-name=sparks-aurora",
     "migrate:remote": "npx wrangler d1 execute sparks-cafe-db --remote --file=migrations/0001_schema.sql && npx wrangler d1 execute sparks-cafe-db --remote --file=migrations/0002_seed.sql",
     "migrate:local": "npx wrangler d1 execute sparks-cafe-db --local --file=migrations/0001_schema.sql && npx wrangler d1 execute sparks-cafe-db --local --file=migrations/0002_seed.sql"

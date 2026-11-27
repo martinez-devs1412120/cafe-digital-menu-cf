@@ -64,7 +64,7 @@
     if (lastAllCount !== null && all > lastAllCount) {
       searchParams.delete('page');
       var back = searchParams.toString();
-      updated.innerHTML = '<a class="text-link" href="orders.php' + (back ? '?' + back : '') + '">↑ New orders arrived — back to page 1</a>';
+      updated.innerHTML = '<a class="text-link" href="orders' + (back ? '?' + back : '') + '">↑ New orders arrived — back to page 1</a>';
     }
     lastAllCount = all;
   }
@@ -73,9 +73,9 @@
     // Never yank the board out from under a staff member changing a status.
     if (document.activeElement && tbody.contains(document.activeElement)) return;
     var countHeader = null;
-    fetch('orders_fragment.php' + location.search, { headers: { 'X-Requested-With': 'fetch' }, cache: 'no-store' })
+    fetch('orders_fragment' + location.search, { headers: { 'X-Requested-With': 'fetch' }, cache: 'no-store' })
       .then(function (r) {
-        if (r.status === 401) { window.location.href = 'login.php'; throw new Error('login'); }
+        if (r.status === 401) { window.location.href = 'login'; throw new Error('login'); }
         if (!r.ok) throw new Error('HTTP ' + r.status);
         countHeader = r.headers.get('X-Order-Counts');
         return r.text();

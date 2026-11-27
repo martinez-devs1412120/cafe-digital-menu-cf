@@ -47,7 +47,7 @@ export async function onRequest(ctx) {
 <style>
   body{background:#e7e7e7;font-family:'Segoe UI',system-ui,sans-serif;color:#1c1a16;margin:0;padding:24px}
   .toolbar{max-width:1100px;margin:0 auto 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .toolbar button{padding:10px 22px;border:none;border-radius:8px;background:#1c6b3f;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  .toolbar button{padding:10px 22px;border:none;border-radius:8px;background:#4a3726;color:#f0e2cf;font-size:15px;font-weight:700;cursor:pointer}
   .toolbar .note{font-size:13px;color:#555}
   .standee{background:#fff;border-radius:14px;padding:30px 26px;width:440px;margin:0 auto 26px;page-break-after:always;
            border:2px solid #1c1a16;text-align:center}
@@ -56,7 +56,7 @@ export async function onRequest(ctx) {
   .tlabel{font-size:22px;font-weight:800;margin:6px 0 16px}
   .qr{display:flex;justify-content:center;margin-bottom:12px}
   .qr img,.qr canvas{width:260px!important;height:260px!important}
-  .scan{font-size:18px;font-weight:800;letter-spacing:.5px;color:#1c6b3f;margin-top:4px}
+  .scan{font-size:18px;font-weight:800;letter-spacing:.5px;color:#4a3726;margin-top:4px}
   .qsub{font-size:11px;color:#666;word-break:break-all;margin-top:8px}
   .foot{font-size:11px;color:#888;margin-top:16px}
   @media print{ body{background:#fff;padding:0} .toolbar{display:none} .standee{border-width:1px;margin-bottom:30px} }

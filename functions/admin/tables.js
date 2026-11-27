@@ -120,14 +120,14 @@ function takeoutQrHtml(shop, takeoutUrl) {
 <style>
   body{margin:0;font:14px Arial,sans-serif;color:#25251f;background:#f7f5ef}
   .bar{padding:14px 20px;background:#fffefa;border-bottom:1px solid #e8e5dc;display:flex;gap:12px;align-items:center}
-  .bar button{padding:10px 18px;background:#405c4a;color:#fff;border:0;border-radius:5px;font-weight:700;cursor:pointer}
-  .bar a{color:#405c4a;font-weight:600}
+  .bar button{padding:10px 18px;background:#4a3726;color:#fff;border:0;border-radius:5px;font-weight:700;cursor:pointer}
+  .bar a{color:#4a3726;font-weight:600}
   .sheet{display:flex;justify-content:center;padding:40px 20px}
   .card{background:#fff;border:1px solid #d8d4c8;border-radius:10px;padding:28px 32px;text-align:center;max-width:280px}
   .card h2{margin:0 0 12px;font-size:22px;letter-spacing:1px}
   .qr{display:flex;justify-content:center}
   .card p{font-size:10px;color:#77776f;word-break:break-all;margin:10px 0 0}
-  .card .hint{font-size:12px;color:#405c4a;font-weight:700;margin-top:8px}
+  .card .hint{font-size:12px;color:#4a3726;font-weight:700;margin-top:8px}
   @media print{.bar{display:none}body{background:#fff}.card{border-color:#bbb}}
 </style></head><body>
 <div class="bar"><button onclick="window.print()">🖨 Print this card</button><a href="/admin/tables">← Back to Tables</a><span>Post this at the counter. Customers scan to order takeout — no table required.</span></div>
@@ -160,14 +160,14 @@ function printQrHtml(shop, tables, base) {
 <style>
   body{margin:0;font:14px Arial,sans-serif;color:#25251f;background:#f7f5ef}
   .bar{padding:14px 20px;background:#fffefa;border-bottom:1px solid #e8e5dc;display:flex;gap:12px;align-items:center}
-  .bar button{padding:10px 18px;background:#405c4a;color:#fff;border:0;border-radius:5px;font-weight:700;cursor:pointer}
-  .bar a{color:#405c4a;font-weight:600}
+  .bar button{padding:10px 18px;background:#4a3726;color:#fff;border:0;border-radius:5px;font-weight:700;cursor:pointer}
+  .bar a{color:#4a3726;font-weight:600}
   .sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;padding:20px}
   .card{background:#fff;border:1px solid #d8d4c8;border-radius:10px;padding:18px;text-align:center;page-break-inside:avoid}
   .card h2{margin:0 0 12px;font-size:21px;letter-spacing:1px}
   .qr{display:flex;justify-content:center}
   .card p{font-size:10px;color:#77776f;word-break:break-all;margin:10px 0 0}
-  .card .hint{font-size:11px;color:#405c4a;font-weight:700;margin-top:6px}
+  .card .hint{font-size:11px;color:#4a3726;font-weight:700;margin-top:6px}
   @media print{.bar{display:none}body{background:#fff}.card{border-color:#bbb}}
 </style></head><body>
 <div class="bar"><button onclick="window.print()">🖨 Print this sheet</button><a href="/admin/tables">← Back to Tables</a><span>Stick each code on its table. Customers scan with any phone camera; the menu needs internet.</span></div>

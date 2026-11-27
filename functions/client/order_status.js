@@ -72,7 +72,7 @@ export async function onRequest(ctx) {
     'This page updates itself — no need to refresh.'
   );
 
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fbfaf6"><title>Track order · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"></head><body class="client-body">
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#221b15"><title>Track order · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"></head><body class="client-body">
 <header class="client-header"><a class="brand" href="/client/">${e(shop.toUpperCase())}<span>COFFEE · COMMUNITY · COMFORT</span></a><div class="header-actions"><a class="outline-btn small-action" href="/client/">← Back to menu</a></div></header>
 <main class="track-main">
 <h1>Track your order</h1>

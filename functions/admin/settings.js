@@ -154,7 +154,7 @@ export async function onRequest(ctx) {
 ${savedMsg}${errorMsg}
 <div class="page-heading"><div><p class="eyebrow">SHOP CONFIGURATION</p><h1>Settings</h1><p class="muted">Café branding, public menu address, and team accounts.</p></div></div>
 
-<div class="panel" style="max-width:700px">
+<div class="panel panel-narrow">
   <h2>Shop name</h2>
   <form method="post">
     <input type="hidden" name="csrf" value="${e(csrfToken)}">
@@ -165,7 +165,7 @@ ${savedMsg}${errorMsg}
   </form>
 </div>
 
-<div class="panel" style="max-width:700px">
+<div class="panel panel-narrow">
   <h2>Public menu address for QR codes</h2>
   <p class="muted">The public HTTPS address customers use to open the menu. Example: <code>https://sparks-aurora.pages.dev</code></p>
   <form method="post">
@@ -178,19 +178,19 @@ ${savedMsg}${errorMsg}
   <p class="muted small-note">Current QR base: <span class="mono">${e(menuBaseUrl)}</span><br>Full menu URL: <span class="mono">${e(menuUrl)}</span></p>
 </div>
 
-<div class="panel" style="max-width:700px">
+<div class="panel panel-narrow">
   <h2>Printable table standee</h2>
   <p class="muted">One QR per table, with the table label and the menu link. Print, cut, place on the table.</p>
   <a class="btn" href="/admin/standee_print" target="_blank">Open standee print sheet ↗</a>
 </div>
 
-<div class="panel" style="max-width:700px">
+<div class="panel panel-narrow">
   <h2>Team accounts</h2>
   <p class="muted">Staff accounts can open the live Orders board. Admin accounts can also change the menu, tables, settings and team.</p>
   <div class="table-wrap"><table><thead><tr><th>Username</th><th>Role</th><th>Created</th><th></th></tr></thead><tbody>
   ${teamRows}
   </tbody></table></div>
-  <h3 style="margin-top:22px">Add a team account</h3>
+  <h3>Add a team account</h3>
   <form method="post">
     <input type="hidden" name="csrf" value="${e(csrfToken)}">
     <input type="hidden" name="section" value="team_add">
@@ -201,7 +201,7 @@ ${savedMsg}${errorMsg}
   </form>
 </div>
 
-<div class="panel" style="max-width:700px">
+<div class="panel panel-narrow">
   <h2>Change my password</h2>
   <form method="post">
     <input type="hidden" name="csrf" value="${e(csrfToken)}">

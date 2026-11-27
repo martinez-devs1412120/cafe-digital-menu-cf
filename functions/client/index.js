@@ -111,6 +111,40 @@ export async function onRequest(ctx) {
 
   const catPillsHtml = cats.map(c => `<button data-cat="${e(c.name)}">${e(c.name)}</button>`).join('');
 
+  // Best picks rail: featured products as horizontally-scrollable cards.
+  // The cards reuse renderCard() so app.js treats them like any other card
+  // (tap-to-open sheet, live availability sync, qty chips).
+  const featCards = cards.filter(g => g.feat);
+  const railHtml = featCards.length ? `
+<section class="tq-rail" data-rail aria-label="Best picks">
+  <div class="tq-railhead"><h2>Best picks for you</h2><button type="button" class="tq-viewbest" data-view-best>View all <i>→</i></button></div>
+  <div class="tq-railrow">
+    ${featCards.slice(0, 10).map(g => renderCard(g)).join('\n')}
+  </div>
+</section>` : '';
+
+  const heroHtml = `
+<section class="tq-hero">
+  <svg class="tq-hero-art" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+    <g stroke="#e2c290" stroke-width="2" stroke-linecap="round">
+      <ellipse cx="62" cy="62" rx="15" ry="23" transform="rotate(-22 62 62)"/>
+      <path d="M60 40c-8 9-3 15-9 24M66 42c6 8 3 13 9 20" transform="rotate(-22 62 62)"/>
+      <ellipse cx="106" cy="96" rx="11" ry="17" transform="rotate(28 106 96)"/>
+      <path d="M104 80c-6 7-2 11-7 17M110 82c4 6 2 10 6 15" transform="rotate(28 106 96)"/>
+      <ellipse cx="28" cy="108" rx="8" ry="12" transform="rotate(-42 28 108)"/>
+    </g>
+  </svg>
+  <h1 class="tq-hero-title">Welcome to our<br><em>coffee world</em></h1>
+  <p class="tq-hero-sub">Tap anything you like, customize it your way, and pay at the counter when you claim your order.</p>
+</section>`;
+
+  const navHtml = `
+<nav class="tq-nav" aria-label="Quick navigation">
+  <a class="tq-navbtn on" href="#menu" aria-current="page"><span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M4 9h12v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8.5 5.5V3.5M12 5.5V3.5"/></svg></span><small>Menu</small></a>
+  <a class="tq-navbtn" href="/client/order_status"><span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 4.6 1.8 5.8 1.8 5.8H4.2S6 13.6 6 9z"/><path d="M10 19a2.2 2.2 0 0 0 4 0"/></svg></span><small>Track</small></a>
+  <button type="button" class="tq-navbtn" data-cart-open aria-label="Your order"><span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1.2 12H7.2L6 8z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg><span class="tq-count" id="tq-navcount" hidden>0</span></span><small>Cart</small></button>
+</nav>`;
+
   const tablePickerModal = (!dineTable && !takeoutMode) ? `
 <div class="modal" id="table-modal">
   <div class="modal-card tq-tablecard">
@@ -126,20 +160,20 @@ export async function onRequest(ctx) {
   </div>
 </div>` : '';
 
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fbfaf6"><title>Menu · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"><script src="/assets/vendor/qrcode.min.js"></script></head><body class="client-body tq" data-table-token="${e(dineTable ? tableToken : '')}" data-mode="${takeoutMode ? 'takeout' : 'normal'}">
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#221b15"><title>Menu · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"><script src="/assets/vendor/qrcode.min.js"></script></head><body class="client-body tq" data-table-token="${e(dineTable ? tableToken : '')}" data-mode="${takeoutMode ? 'takeout' : 'normal'}">
 
 <div class="tq-sticky">
   <header class="tq-head">
     <div class="tq-brandwrap">
       <span class="tq-brand">${e(shop.toUpperCase())}</span>
-      <span class="tq-live" id="tq-live">LIVE — availability updates by itself</span>
+      <span class="tq-live" id="tq-live">Live · availability updates by itself</span>
     </div>
     <div class="tq-headright">
       ${!takeoutMode ? (dineTable
         ? `<span class="tq-table" id="tq-table" data-token="${e(tableToken)}">${e(tableDisplay(dineTable.label))}</span>`
         : `<button type="button" class="tq-table tq-tablepick" id="tq-tablepick" title="Choose your table">TABLE</button>`) : ''}
       <a class="tq-track" href="/client/order_status">Track order</a>
-      <button type="button" class="tq-cartbtn" id="tq-cartopen" title="Your order">
+      <button type="button" class="tq-cartbtn" id="tq-cartopen" title="Your order" aria-label="Your order">
         <svg viewBox="0 0 24 24"><path d="M4 6h13l-1.5 9h-10z"/><circle cx="8" cy="19" r="1.6"/><circle cx="16" cy="19" r="1.6"/></svg>
         <span class="tq-count" id="tq-count" hidden>0</span>
       </button>
@@ -148,7 +182,7 @@ export async function onRequest(ctx) {
   <div id="order-chips" hidden></div>
   <div class="tq-find">
     <div class="tq-searchrow">
-      <div class="tq-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg><input id="tq-search" type="search" placeholder="Search the menu" autocomplete="off"></div>
+      <div class="tq-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg><input id="tq-search" type="search" placeholder="Search the menu" autocomplete="off" aria-label="Search the menu"></div>
       <button type="button" class="tq-qrbtn" onclick="showQR()" title="Share menu QR" aria-label="Share menu QR">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="19" y="19" width="2" height="2"/><path d="M19 14h2M14 19v2"/></svg>
         <span>Share menu</span>
@@ -161,6 +195,9 @@ export async function onRequest(ctx) {
     </div>
   </div>
 </div>
+
+${heroHtml}
+${railHtml}
 
 <main class="tq-main" id="menu">
   ${success ? `<div class="tq-banner ok">Order <b>${e(success)}</b> sent — opening live status…</div>` : ''}
@@ -185,15 +222,15 @@ export async function onRequest(ctx) {
 
 <div class="tq-backdrop" id="tq-backdrop" hidden></div>
 <aside class="tq-cart" id="tq-cart" hidden>
-  <div class="tq-chead"><h3>Your order</h3><button type="button" class="tq-cartx" id="tq-cartclose">✕</button></div>
+  <div class="tq-chead"><h3>Your order</h3><button type="button" class="tq-cartx" id="tq-cartclose" aria-label="Close cart">✕</button></div>
   <form id="order-form" method="post" action="/client/place_order">
     <input type="hidden" name="csrf" value="${e(csrfToken)}">
     <input type="hidden" name="cart" id="cart-json">
     <input type="hidden" name="table_token" id="table-token" value="${e(tableToken)}">
     <input type="hidden" name="order_type" id="order-type" value="${takeoutMode ? 'Takeaway' : 'Dine-in'}">
     <div id="tq-lines"><div class="tq-emptyline">Your order is empty — tap an item to add it.</div></div>
+    <div class="tq-field"><label for="cust-name">NAME</label><input name="customer_name" id="cust-name" maxlength="120" placeholder="Optional — for the cup label" autocomplete="name"></div>
     <div class="tq-field"><label>TABLE</label><span class="tq-val" id="rail-table">${e(dineTable ? tableDisplay(dineTable.label) : '—')}</span>${(!dineTable && !takeoutMode) ? '<button type="button" class="tq-picklink" id="rail-tablepick">Select</button>' : ''}</div>
-    <div class="tq-field"><label>NAME</label><input name="customer_name" id="cust-name" maxlength="120" placeholder="Optional — for the cup label" autocomplete="name"></div>
     ${!takeoutMode ? '<div class="tq-type"><button type="button" data-type="Dine-in" class="on">DINE-IN</button><button type="button" data-type="Takeaway">TAKE-OUT</button></div>' : ''}
     <input type="hidden" name="mode" value="${takeoutMode ? 'takeout' : 'normal'}">
     <div class="tq-total">TOTAL <b id="rail-total">₱0.00</b></div>
@@ -208,7 +245,9 @@ export async function onRequest(ctx) {
   <span class="tq-cgo">Review order <i>→</i></span>
 </div>
 
-<div class="modal" id="qr-modal"><div class="modal-card"><button class="modal-close" onclick="hideQR()">✕</button><p class="eyebrow">SHARE OUR MENU</p><h2>Scan to explore</h2><div id="qrcode" data-menu-url="${e(menuUrl)}"></div><p class="qr-url"><span id="qr-url-text">${e(menuUrl)}</span><button type="button" class="small-btn" id="copy-menu-url">Copy link</button></p><p class="muted">Customers scan this to open the menu.</p><button class="outline-btn" onclick="hideQR()">Close</button></div></div>
+${navHtml}
+
+<div class="modal" id="qr-modal"><div class="modal-card"><button class="modal-close" onclick="hideQR()" aria-label="Close">✕</button><p class="eyebrow">SHARE OUR MENU</p><h2>Scan to explore</h2><div id="qrcode" data-menu-url="${e(menuUrl)}"></div><p class="qr-url"><span id="qr-url-text">${e(menuUrl)}</span><button type="button" class="small-btn" id="copy-menu-url">Copy link</button></p><p class="muted">Customers scan this to open the menu.</p><button class="outline-btn" onclick="hideQR()">Close</button></div></div>
 
 ${tablePickerModal}
 <div id="toast-root" aria-live="polite"></div>

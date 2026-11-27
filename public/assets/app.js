@@ -120,9 +120,10 @@ function buildSheet() {
           return '<button type="button" class="sh-pill sh-size' + (sheet.size === sz ? ' on' : '') + '" data-size="' + sz + '">' + label + '</button>';
         }).join('') + '</div></div>'
       : '') +
-    '<div class="sh-qtyrow"><button type="button" id="sh-dq">−</button><span class="q">' + sheet.qty + '</span><button type="button" id="sh-iq">+</button></div>' +
+    '<div class="sh-foot"><div class="sh-footrow">' +
+    '<div class="sh-qtyrow"><button type="button" id="sh-dq" aria-label="Fewer">−</button><span class="q">' + sheet.qty + '</span><button type="button" id="sh-iq" aria-label="More">+</button></div>' +
     '<button type="button" class="sh-add" id="sh-add" ' + (canAdd ? '' : 'disabled') + '>' + (canAdd ? 'ADD TO ORDER · ' + money(total) : 'SOLD OUT') + '</button>' +
-    '<div class="sh-note">Pay at the counter when you claim your order.</div>';
+    '</div><div class="sh-note">Pay at the counter when you claim your order.</div></div>';
 }
 function sheetRefresh() {
   if (!sheet) return;
@@ -176,6 +177,12 @@ function syncCartUI() {
     badge.textContent = count;
     badge.hidden = count === 0;
   }
+  // bottom-nav cart badge (same state, second surface)
+  var navBadge = document.getElementById('tq-navcount');
+  if (navBadge) {
+    navBadge.textContent = count;
+    navBadge.hidden = count === 0;
+  }
   var bar = document.getElementById('tq-cartbar');
   if (bar) {
     bar.hidden = count === 0;
@@ -218,7 +225,7 @@ function renderRailLines() {
   }).join('') : '<div class="tq-emptyline">Your order is empty — tap an item to add it.</div>';
   wrap.innerHTML = warnHtml + linesHtml;
   document.getElementById('cart-json').value = JSON.stringify(cart.map(function (x) { return { id: x.id, qty: x.qty, sweetness: x.sweetness != null ? x.sweetness : null, size: x.size || null, sizeDelta: x.sizeDelta || 0 }; }));
-  document.getElementById('rail-total').textContent = cartTotal().toFixed(2);
+  document.getElementById('rail-total').textContent = '₱' + cartTotal().toFixed(2);
 }
 
 /* ===== order slide-over (bottom sheet on phones, side rail on PC) ===== */
@@ -266,6 +273,9 @@ function applyFilters() {
               (!qn || card.dataset.name.indexOf(qn) !== -1);
     card.hidden = !hit;
   });
+  // The rail duplicates featured cards — keep it only for the unfiltered browse view.
+  var rail = document.querySelector('.tq-rail');
+  if (rail) rail.hidden = !!(qn) || currentCat !== 'all';
 }
 
 /* ===== keep: QR modal ===== */
@@ -300,6 +310,14 @@ document.addEventListener('click', function (e) {
     currentCat = pill.dataset.cat;
     document.querySelectorAll('.tq-cats button').forEach(function (b) { b.classList.toggle('on', b === pill); });
     applyFilters();
+    return;
+  }
+  var viewBest = e.target.closest('[data-view-best]');
+  if (viewBest) {
+    var bestPill = document.querySelector('.tq-cats button[data-cat="best"]');
+    if (bestPill) bestPill.click();
+    var grid = document.getElementById('tq-rows');
+    if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
   var type = e.target.closest('.tq-type button');
@@ -338,7 +356,7 @@ document.addEventListener('click', function (e) {
   if (inc) { changeCartLine(Number(inc.dataset.lineInc), 1); return; }
   var dec = e.target.closest('[data-line-dec]');
   if (dec) { changeCartLine(Number(dec.dataset.lineDec), -1); return; }
-  if (e.target.closest('#tq-cartopen') || e.target.closest('#tq-cartbar')) { openCart(); return; }
+  if (e.target.closest('#tq-cartopen') || e.target.closest('[data-cart-open]') || e.target.closest('#tq-cartbar')) { openCart(); return; }
   if (e.target.closest('#tq-cartclose')) { closeCart(); return; }
   if (e.target.closest('#tq-keep')) { closeCart(); return; }
   if (e.target.closest('#tq-backdrop')) { closeCart(); return; }
@@ -386,7 +404,7 @@ document.getElementById('tq-search')?.addEventListener('input', applyFilters);
 
 /* ===== live availability: cards, the item page and the rail stay current ===== */
 function refreshAvailability() {
-  fetch('menu_status.php', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (data) {
+  fetch('menu_status', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (data) {
     availability = data.products || {};
     var outBecameAvailable = false;
     document.querySelectorAll('.tq-card[data-basekey]').forEach(function (card) {
@@ -546,7 +564,7 @@ function rememberOrder(num) {
     // The order is safely in MySQL now; keep it from being submitted twice.
     cart = [];
     try { localStorage.removeItem(CART_KEY); } catch (e) {}
-    location.replace('order_status.php?number=' + encodeURIComponent(num));
+    location.replace('order_status?number=' + encodeURIComponent(num));
   }
 })();
 
@@ -587,7 +605,7 @@ var orderStatusCache = {};
 function refreshOrderFeed() {
   var nums = myOrders().join(',');
   if (!tableToken && !nums) return;
-  fetch('order_feed.php?t=' + encodeURIComponent(tableToken) + '&n=' + encodeURIComponent(nums))
+  fetch('order_feed?t=' + encodeURIComponent(tableToken) + '&n=' + encodeURIComponent(nums))
     .then(function (r) { return r.json(); })
     .then(function (data) {
       var wrap = document.getElementById('order-chips');
@@ -609,7 +627,7 @@ function refreshOrderFeed() {
       active.forEach(function (o) {
         var a = document.createElement('a');
         a.className = 'order-chip';
-        a.href = 'order_status.php?number=' + encodeURIComponent(o.number);
+        a.href = 'order_status?number=' + encodeURIComponent(o.number);
         a.title = o.items || '';
         a.innerHTML = '<b>' + escapeHtml(o.number) + '</b> <span class="status ' + chipStatusClass(o.status) + '">' + escapeHtml(o.status) + '</span>';
         wrap.appendChild(a);
@@ -668,7 +686,7 @@ refreshAvailability();
     btn.textContent = 'Adding…';
 
     var ids = saved.items.map(function (x) { return x.id; });
-    fetch('last_order_check.php', {
+    fetch('last_order_check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids: ids })
