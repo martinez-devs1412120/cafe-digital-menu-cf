@@ -301,91 +301,83 @@ async function throttleClear(db, ip, username) {
 }
 __name(throttleClear, "throttleClear");
 async function onRequestGet(ctx) {
-  try {
-    const { request, env } = ctx;
-    if (!env.sparks_cafe_db) return new Response("DB binding missing: sparks_cafe_db", { status: 500 });
-    if (!env.SESSION_SECRET) return new Response("Secret missing: SESSION_SECRET", { status: 500 });
-    const db = env.sparks_cafe_db;
-    const secret = env.SESSION_SECRET;
-    const token = getSessionFromCookie(request);
-    const session = token ? await verifySession(token, secret) : null;
-    if (session) {
-      return Response.redirect(new URL(session.role === "admin" ? "/admin/dashboard" : "/admin/orders", request.url).href, 302);
-    }
-    const brandName = await getSetting(db, "shop_name", "SPARKS CAFE");
-    const csrfToken = generateCsrf();
-    const headers = new Headers({ "Content-Type": "text/html;charset=utf-8" });
-    setCsrfCookie(headers, csrfToken);
-    const html = loginPageHtml(brandName, csrfToken, "");
-    return new Response(html, { headers });
-  } catch (err) {
-    return new Response("Login GET error: " + err.message + "\n" + err.stack, { status: 500 });
+  const { request, env } = ctx;
+  if (!env.sparks_cafe_db) return new Response("DB binding missing: sparks_cafe_db", { status: 500 });
+  if (!env.SESSION_SECRET) return new Response("Secret missing: SESSION_SECRET", { status: 500 });
+  const db = env.sparks_cafe_db;
+  const secret = env.SESSION_SECRET;
+  const token = getSessionFromCookie(request);
+  const session = token ? await verifySession(token, secret) : null;
+  if (session) {
+    return Response.redirect(new URL(session.role === "admin" ? "/admin/dashboard" : "/admin/orders", request.url).href, 302);
   }
+  const brandName = await getSetting(db, "shop_name", "SPARKS CAFE");
+  const csrfToken = generateCsrf();
+  const headers = new Headers({ "Content-Type": "text/html;charset=utf-8" });
+  setCsrfCookie(headers, csrfToken);
+  const html = loginPageHtml(brandName, csrfToken, "");
+  return new Response(html, { headers });
 }
 __name(onRequestGet, "onRequestGet");
 async function onRequestPost(ctx) {
-  try {
-    const { request, env } = ctx;
-    if (!env.sparks_cafe_db) return new Response("DB binding missing", { status: 500 });
-    if (!env.SESSION_SECRET) return new Response("Secret missing", { status: 500 });
-    const db = env.sparks_cafe_db;
-    const secret = env.SESSION_SECRET;
-    const formData = await request.formData();
-    const csrfFormToken = formData.get("csrf") || "";
-    if (!verifyCsrf(request, csrfFormToken)) {
-      const brandName2 = await getSetting(db, "shop_name", "SPARKS CAFE");
-      const csrfToken2 = generateCsrf();
-      const headers2 = new Headers({ "Content-Type": "text/html;charset=utf-8" });
-      setCsrfCookie(headers2, csrfToken2);
-      return new Response(loginPageHtml(brandName2, csrfToken2, "Invalid form token. Please try again."), { headers: headers2 });
-    }
-    const username = (formData.get("username") || "").trim().substring(0, 60);
-    const password = formData.get("password") || "";
-    const ip = clientIp(request);
-    const brandName = await getSetting(db, "shop_name", "SPARKS CAFE");
-    const wait = await throttleWait(db, ip, username);
-    if (wait > 0) {
-      const csrfToken2 = generateCsrf();
-      const headers2 = new Headers({ "Content-Type": "text/html;charset=utf-8" });
-      setCsrfCookie(headers2, csrfToken2);
-      const mins = Math.ceil(wait / 60);
-      return new Response(loginPageHtml(brandName, csrfToken2, `Too many failed attempts. Try again in ${mins} minute(s).`), { headers: headers2 });
-    }
-    const admin = await queryOne(db, "SELECT * FROM admins WHERE username = ?", [username]);
-    let passwordOk = false;
-    if (admin) {
-      const hash = String(admin.password_hash || "");
-      if (hash.startsWith("$2")) {
-        const csrfToken2 = generateCsrf();
-        const headers2 = new Headers({ "Content-Type": "text/html;charset=utf-8" });
-        setCsrfCookie(headers2, csrfToken2);
-        return new Response(loginPageHtml(brandName, csrfToken2, "Please use the /admin/setup endpoint to set a new password for cloud mode."), { headers: headers2 });
-      }
-      passwordOk = await verifyPassword(password, hash);
-    }
-    if (admin && passwordOk) {
-      await throttleClear(db, ip, username);
-      const payload = {
-        admin_id: parseInt(admin.id),
-        username: String(admin.username),
-        role: admin.role === "staff" ? "staff" : "admin",
-        exp: newSessionExp()
-      };
-      const sessionToken = await signSession(payload, secret);
-      const redirectUrl = payload.role === "admin" ? "/admin/dashboard" : "/admin/orders";
-      const headers2 = new Headers();
-      headers2.set("Location", new URL(redirectUrl, request.url).href);
-      headers2.append("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`);
-      return new Response(null, { status: 302, headers: headers2 });
-    }
-    await throttleFail(db, ip, username);
-    const csrfToken = generateCsrf();
-    const headers = new Headers({ "Content-Type": "text/html;charset=utf-8" });
-    setCsrfCookie(headers, csrfToken);
-    return new Response(loginPageHtml(brandName, csrfToken, "Incorrect username or password."), { headers });
-  } catch (err) {
-    return new Response("Login POST error: " + err.message + "\n" + err.stack, { status: 500 });
+  const { request, env } = ctx;
+  if (!env.sparks_cafe_db) return new Response("DB binding missing", { status: 500 });
+  if (!env.SESSION_SECRET) return new Response("Secret missing", { status: 500 });
+  const db = env.sparks_cafe_db;
+  const secret = env.SESSION_SECRET;
+  const formData = await request.formData();
+  const csrfFormToken = formData.get("csrf") || "";
+  if (!verifyCsrf(request, csrfFormToken)) {
+    const brandName2 = await getSetting(db, "shop_name", "SPARKS CAFE");
+    const csrfToken2 = generateCsrf();
+    const headers2 = new Headers({ "Content-Type": "text/html;charset=utf-8" });
+    setCsrfCookie(headers2, csrfToken2);
+    return new Response(loginPageHtml(brandName2, csrfToken2, "Invalid form token. Please try again."), { headers: headers2 });
   }
+  const username = (formData.get("username") || "").trim().substring(0, 60);
+  const password = formData.get("password") || "";
+  const ip = clientIp(request);
+  const brandName = await getSetting(db, "shop_name", "SPARKS CAFE");
+  const wait = await throttleWait(db, ip, username);
+  if (wait > 0) {
+    const csrfToken2 = generateCsrf();
+    const headers2 = new Headers({ "Content-Type": "text/html;charset=utf-8" });
+    setCsrfCookie(headers2, csrfToken2);
+    const mins = Math.ceil(wait / 60);
+    return new Response(loginPageHtml(brandName, csrfToken2, `Too many failed attempts. Try again in ${mins} minute(s).`), { headers: headers2 });
+  }
+  const admin = await queryOne(db, "SELECT * FROM admins WHERE username = ?", [username]);
+  let passwordOk = false;
+  if (admin) {
+    const hash = String(admin.password_hash || "");
+    if (hash.startsWith("$2")) {
+      const csrfToken2 = generateCsrf();
+      const headers2 = new Headers({ "Content-Type": "text/html;charset=utf-8" });
+      setCsrfCookie(headers2, csrfToken2);
+      return new Response(loginPageHtml(brandName, csrfToken2, "Please use the /admin/setup endpoint to set a new password for cloud mode."), { headers: headers2 });
+    }
+    passwordOk = await verifyPassword(password, hash);
+  }
+  if (admin && passwordOk) {
+    await throttleClear(db, ip, username);
+    const payload = {
+      admin_id: parseInt(admin.id),
+      username: String(admin.username),
+      role: admin.role === "staff" ? "staff" : "admin",
+      exp: newSessionExp()
+    };
+    const sessionToken = await signSession(payload, secret);
+    const redirectUrl = payload.role === "admin" ? "/admin/dashboard" : "/admin/orders";
+    const headers2 = new Headers();
+    headers2.set("Location", new URL(redirectUrl, request.url).href);
+    headers2.append("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`);
+    return new Response(null, { status: 302, headers: headers2 });
+  }
+  await throttleFail(db, ip, username);
+  const csrfToken = generateCsrf();
+  const headers = new Headers({ "Content-Type": "text/html;charset=utf-8" });
+  setCsrfCookie(headers, csrfToken);
+  return new Response(loginPageHtml(brandName, csrfToken, "Incorrect username or password."), { headers });
 }
 __name(onRequestPost, "onRequestPost");
 function loginPageHtml(brandName, csrfToken, error) {
@@ -931,7 +923,7 @@ function renderForm(id, product, cats, csrfToken, error, imageUploadNotice) {
     ["vegetarian", "Vegetarian"],
     ["caffeine", "Caffeine"],
     ["decaf", "Decaf"]
-  ].map(([val, label]) => `<label class="check"><input type="checkbox" name="allergen_tags[]" value="${val}"${currentTags.includes(val) ? " checked" : ""}> ${label}</label>`).join("");
+  ].map(([val, label]) => `<label class="check"><input type="checkbox" name="allergen_tags" value="${val}"${currentTags.includes(val) ? " checked" : ""}> ${label}</label>`).join("");
   const catOptions = cats.map((c) => `<option value="${c.id}"${product.category_id == c.id ? " selected" : ""}>${e(c.name)}</option>`).join("");
   const currentImageHtml = product.image ? `<div class="full current-image"><img src="${e(productImage(product.image, null))}" alt="Current product photo"><span>Current photo \u2014 uploading a new one replaces it.</span></div>` : "";
   return `
@@ -2076,21 +2068,17 @@ __name(onRequest17, "onRequest");
 async function onRequest18(ctx) {
   try {
     const response = await ctx.next();
-    if (response.status >= 300 && response.status < 400) return response;
-    const r = new Response(response.body, response);
-    r.headers.set("X-Frame-Options", "DENY");
-    r.headers.set("X-Content-Type-Options", "nosniff");
-    r.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-    r.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-    r.headers.set("Strict-Transport-Security", "max-age=31536000");
-    return r;
+    return response;
   } catch (err) {
-    return new Response("Middleware error: " + err.message + "\n" + err.stack, { status: 500 });
+    return new Response(
+      "WORKER ERROR: " + err.name + ": " + err.message + "\n\nStack:\n" + (err.stack || "no stack"),
+      { status: 500, headers: { "Content-Type": "text/plain" } }
+    );
   }
 }
 __name(onRequest18, "onRequest");
 
-// ../.wrangler/tmp/pages-RSRj2z/functionsRoutes-0.9665361628485049.mjs
+// ../.wrangler/tmp/pages-TWT6oZ/functionsRoutes-0.6652250731649779.mjs
 var routes = [
   {
     routePath: "/admin/login",
