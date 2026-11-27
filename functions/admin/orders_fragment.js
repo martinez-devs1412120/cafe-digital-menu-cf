@@ -1,7 +1,7 @@
-import { ORDER_STATUSES, orderStatusCounts, fetchOrdersPage, ordersQs, run } from '../_shared/db.js';
+import { ORDER_STATUSES, orderStatusCounts, fetchOrdersPage, run } from '../_shared/db.js';
 import { verifySession, getSessionFromCookie } from '../_shared/auth.js';
 import { generateCsrf, getCsrfFromCookie, verifyCsrf } from '../_shared/csrf.js';
-import { renderOrderRows } from './_order_rows.js';
+import { renderOrderBoard } from './_order_rows.js';
 
 export async function onRequest(ctx) {
   const { request, env } = ctx;
@@ -15,10 +15,7 @@ export async function onRequest(ctx) {
     return new Response('login required', { status: 401, headers: { 'Content-Type': 'text/plain' } });
   }
 
-  let status = url.searchParams.get('status') || 'all';
-  if (!ORDER_STATUSES.includes(status) && status !== 'all') status = 'all';
   const q = (url.searchParams.get('q') || '').trim();
-  let page = Math.max(1, parseInt(url.searchParams.get('page') || 1));
 
   if (request.method === 'POST') {
     const formData = await request.formData();
@@ -30,18 +27,19 @@ export async function onRequest(ctx) {
         await run(db, 'UPDATE orders SET status = ? WHERE id = ?', [newStatus, orderId]);
       }
     }
-    return Response.redirect(new URL(ordersQs(status, q, page, '/admin/orders'), request.url).href, 302);
+    return Response.redirect(new URL('/admin/orders' + (q ? '?q=' + encodeURIComponent(q) : ''), request.url).href, 302);
   }
 
-  // GET — return fragment HTML
-  const [orders, itemsByOrder, total, pages] = await fetchOrdersPage(db, status, q, 20, page);
+  // GET — the board fragment: all three columns, re-rendered fresh. The live
+  // poller swaps this straight into #oboard every 10 seconds.
+  const [orders, itemsByOrder] = await fetchOrdersPage(db, 'all', q, 200, 1);
   const counts = await orderStatusCounts(db, q);
 
-  // Re-use the existing CSRF cookie value for status forms in the fragment
+  // Re-use the existing CSRF cookie value for the action forms in the fragment
   const csrfToken = getCsrfFromCookie(request) || generateCsrf();
-  const rowsHtml = renderOrderRows(orders, itemsByOrder, csrfToken);
+  const boardHtml = renderOrderBoard(orders, itemsByOrder, csrfToken, counts);
 
-  return new Response(rowsHtml, {
+  return new Response(boardHtml, {
     headers: {
       'Content-Type': 'text/html;charset=utf-8',
       'Cache-Control': 'no-store',
