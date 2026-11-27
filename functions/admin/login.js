@@ -45,6 +45,8 @@ async function throttleClear(db, ip, username) {
 
 export async function onRequestGet(ctx) {
   const { request, env } = ctx;
+  if (!env.sparks_cafe_db) return new Response('DB binding missing: sparks_cafe_db', { status: 500 });
+  if (!env.SESSION_SECRET) return new Response('Secret missing: SESSION_SECRET', { status: 500 });
   const db = env.sparks_cafe_db;
   const secret = env.SESSION_SECRET;
 
@@ -66,6 +68,8 @@ export async function onRequestGet(ctx) {
 
 export async function onRequestPost(ctx) {
   const { request, env } = ctx;
+  if (!env.sparks_cafe_db) return new Response('DB binding missing', { status: 500 });
+  if (!env.SESSION_SECRET) return new Response('Secret missing', { status: 500 });
   const db = env.sparks_cafe_db;
   const secret = env.SESSION_SECRET;
 

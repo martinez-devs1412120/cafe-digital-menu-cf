@@ -97,7 +97,7 @@ function renderForm(id, product, cats, csrfToken, error, imageUploadNotice) {
     ['dairy', 'Contains dairy'], ['nuts', 'Contains nuts'], ['gluten', 'Contains gluten'],
     ['soy', 'Contains soy'], ['eggs', 'Contains eggs'], ['vegan', 'Vegan'],
     ['vegetarian', 'Vegetarian'], ['caffeine', 'Caffeine'], ['decaf', 'Decaf'],
-  ].map(([val, label]) => `<label class="check"><input type="checkbox" name="allergen_tags[]" value="${val}"${currentTags.includes(val) ? ' checked' : ''}> ${label}</label>`).join('');
+  ].map(([val, label]) => `<label class="check"><input type="checkbox" name="allergen_tags" value="${val}"${currentTags.includes(val) ? ' checked' : ''}> ${label}</label>`).join('');
 
   const catOptions = cats.map(c => `<option value="${c.id}"${product.category_id == c.id ? ' selected' : ''}>${e(c.name)}</option>`).join('');
 
