@@ -31,7 +31,23 @@ export async function onRequest(ctx) {
 
   const shopName = await getSetting(db, 'shop_name', 'SPARKS CAFE');
   const csrfToken = generateCsrf();
+  const catError = (new URL(request.url).searchParams.get('caterror') || '').slice(0, 200);
   const rows = await queryAll(db, 'SELECT p.*, c.name AS category FROM products p LEFT JOIN categories c ON c.id = p.category_id ORDER BY p.created_at DESC, p.id DESC');
+  const cats = await queryAll(db, 'SELECT c.*, COUNT(p.id) AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.id GROUP BY c.id ORDER BY c.name');
+
+  // Category management folded in here — the separate Categories page is gone.
+  const catChips = cats.map(c => `<span class="catchip"><b>${e(c.name)}</b><small>${c.product_count}</small>
+    <form method="post" action="/admin/categories" class="inline-form confirm-delete" title="Delete category — its products become uncategorized">
+      <input type="hidden" name="csrf" value="${e(csrfToken)}"><input type="hidden" name="delete_id" value="${c.id}">
+      <button class="catchip-x" type="submit" aria-label="Delete ${e(c.name)}">✕</button>
+    </form></span>`).join('');
+  const catBar = `
+<div class="catbar panel">
+  <span class="catbar-label">Categories</span>
+  ${catChips || '<span class="muted small-note" style="margin:0">No categories yet.</span>'}
+  <form method="post" action="/admin/categories" class="inline-form catbar-add"><input type="hidden" name="csrf" value="${e(csrfToken)}"><input name="name" placeholder="New category" required maxlength="80" aria-label="New category name"><button class="small-btn" type="submit">+ Add</button></form>
+</div>
+${catError ? `<p class="error">${e(catError)}</p>` : ''}`;
 
   const tableHtml = !rows.length
     ? `<tr><td colspan="5"><div class="empty-state"><img src="/assets/coffee-placeholder.svg" alt=""><p>No products yet. Add your first menu item to get started.</p><a class="btn" href="/admin/product_form">+ Add product</a></div></td></tr>`
@@ -39,6 +55,7 @@ export async function onRequest(ctx) {
 
   const bodyHtml = `
 <div class="page-heading"><div><p class="eyebrow">MENU MANAGEMENT</p><h1>Products</h1><p class="muted">Update prices, photos and availability.</p></div><a class="btn" href="/admin/product_form">+ Add product</a></div>
+${catBar}
 <div class="panel table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Availability</th><th>Actions</th></tr></thead>
 ${tableHtml}
 </table></div>`;

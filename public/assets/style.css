@@ -139,8 +139,50 @@ input, select, textarea { font: inherit; }
   border-radius: 16px;
   padding: 22px;
   margin-bottom: 22px;
-  box-shadow: var(--shadow-soft);
 }
+
+/* compact inline stats — the Orders home row */
+.statrow { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.statchip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 9px;
+  background: var(--a-card);
+  border: 1px solid var(--a-line);
+  border-radius: 13px;
+  padding: 9px 15px;
+}
+.statchip span { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--a-muted); }
+.statchip strong { font-family: var(--serif); font-size: 19px; font-weight: 600; }
+
+/* category chips — folded into the Products page */
+.catbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px; margin-bottom: 16px; }
+.catbar-label { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--a-muted); margin-right: 4px; }
+.catchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--a-bg);
+  border: 1px solid var(--a-line);
+  border-radius: var(--r-pill);
+  padding: 6px 8px 6px 13px;
+  font-size: 13px;
+}
+.catchip b { font-weight: 700; }
+.catchip small { color: var(--a-muted); font-size: 11px; }
+.catchip-x {
+  background: none;
+  border: 0;
+  color: var(--a-muted);
+  font-size: 11px;
+  padding: 2px 5px;
+  cursor: pointer;
+  line-height: 1;
+  border-radius: 50%;
+}
+.catchip-x:hover { color: var(--a-danger); }
+.catbar-add { margin-left: auto; }
+.catbar-add input { border: 1px solid var(--a-line); border-radius: 9px; padding: 7px 11px; width: 170px; background: var(--a-card); font-size: 13px; }
 .panel h2, .section-head h2 { margin: 0; font-family: var(--serif); font-size: 21px; font-weight: 600; }
 .section-head {
   display: flex;

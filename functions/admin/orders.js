@@ -1,4 +1,4 @@
-import { getSetting, ORDER_STATUSES, orderStatusCounts, fetchOrdersPage, ordersQs, run, money, statusClass, e } from '../_shared/db.js';
+import { getSetting, queryOne, ORDER_STATUSES, orderStatusCounts, fetchOrdersPage, ordersQs, run, money, statusClass, e } from '../_shared/db.js';
 import { verifySession, getSessionFromCookie } from '../_shared/auth.js';
 import { adminLayout } from '../_shared/layout.js';
 import { generateCsrf, setCsrfCookie, verifyCsrf } from '../_shared/csrf.js';
@@ -39,6 +39,20 @@ export async function onRequest(ctx) {
   page = Math.min(Math.max(1, page), pages);
   const statusCounts = await orderStatusCounts(db, q);
 
+  // Slim stats row (absorbed from the old dashboard page) — daily numbers
+  // stay one glance away on the home screen.
+  const soldRow = await queryOne(db, 'SELECT COUNT(*) AS n FROM products WHERE is_available=0');
+  const soldOut = soldRow ? (soldRow.n || 0) : 0;
+  const todayRow = await queryOne(db, "SELECT COALESCE(SUM(total),0) AS s FROM orders WHERE status != 'Cancelled' AND DATE(datetime(created_at,'+8 hours')) = date('now','+8 hours')");
+  const salesToday = todayRow ? parseFloat(todayRow.s || 0) : 0;
+  const activeOrders = (statusCounts.Pending || 0) + (statusCounts.Preparing || 0) + (statusCounts.Ready || 0);
+  const statsHtml = `
+<section class="statrow">
+  <div class="statchip"><span>Sales today</span><strong title="Sum of every order placed today except cancelled ones. This is order value, not verified income.">${money(salesToday)}</strong></div>
+  <div class="statchip"><span>Active orders</span><strong>${activeOrders}</strong></div>
+  <div class="statchip"><span>Sold-out items</span><strong>${soldOut}</strong></div>
+</section>`;
+
   const statusTabsHtml = [
     `<a class="pill ${status === 'all' ? 'active' : ''}" href="${e(ordersQs('all', q, 1))}">All <b data-count="all">${statusCounts.all}</b></a>`,
     ...ORDER_STATUSES.map(st => `<a class="pill ${status === st ? 'active' : ''}" href="${e(ordersQs(st, q, 1))}">${st} <b data-count="${st}">${statusCounts[st] || 0}</b></a>`),
@@ -63,6 +77,7 @@ export async function onRequest(ctx) {
 
   const bodyHtml = `
 <div class="page-heading"><div><p class="eyebrow">SALES &amp; FULFILLMENT</p><h1>Orders</h1><p class="muted">Review customer orders and update their progress.</p></div></div>
+${statsHtml}
 <div class="orders-toolbar panel">
  <div class="status-tabs">${statusTabsHtml}</div>
  <form class="order-search" method="get"><input type="hidden" name="status" value="${e(status)}"><input name="q" value="${e(q)}" placeholder="Search order # or customer" maxlength="60"><button class="small-btn" type="submit">Search</button></form>

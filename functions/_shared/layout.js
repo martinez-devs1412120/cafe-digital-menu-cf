@@ -16,16 +16,14 @@ export function adminLayout(session, pageTitle, shopName, currentPath, bodyHtml,
 
   const navLinks = isManager
     ? [
-        ['/admin/dashboard', 'Dashboard'],
-        ['/admin/products', 'Products'],
-        ['/admin/categories', 'Categories'],
-        ['/admin/tables', 'Tables'],
         ['/admin/orders', 'Orders'],
+        ['/admin/products', 'Products'],
+        ['/admin/tables', 'Tables'],
         ['/admin/settings', 'Settings'],
       ]
     : [['/admin/orders', 'Orders']];
 
-  const homeHref = isManager ? '/admin/dashboard' : '/admin/orders';
+  const homeHref = '/admin/orders';
 
   const navHtml = navLinks.map(([href, label]) => {
     const active = currentPath === href || currentPath.startsWith(href + '?') ? ' class="active"' : '';

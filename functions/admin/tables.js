@@ -100,7 +100,7 @@ export async function onRequest(ctx) {
  <form method="post" class="inline-form confirm-delete"><input type="hidden" name="csrf" value="${e(csrfToken)}"><input type="hidden" name="delete_id" value="${t.id}"><button class="text-link danger-text link-button" type="submit">Delete</button></form></td></tr>`).join('');
 
   const bodyHtml = `
-<div class="page-heading"><div><p class="eyebrow">FLOOR PLAN</p><h1>Tables</h1><p class="muted">Each table gets its own QR code, so orders and updates know where they belong.</p></div><a class="btn" href="/admin/tables?takeout_qr=1" target="_blank">🏷 Takeout Counter QR</a><a class="btn" href="/admin/tables?print=1" target="_blank">🖨 Print QR codes</a></div>
+<div class="page-heading"><div><p class="eyebrow">FLOOR PLAN</p><h1>Tables</h1><p class="muted">Each table gets its own QR code, so orders and updates know where they belong.</p></div><a class="btn" href="/admin/tables?takeout_qr=1" target="_blank">🏷 Takeout QR</a><a class="btn" href="/admin/tables?print=1" target="_blank">🖨 Table QRs</a><a class="btn" href="/admin/standee_print" target="_blank">🗂 Standee sheet</a></div>
 <form class="panel inline-form category-form" method="post"><input type="hidden" name="csrf" value="${e(csrfToken)}"><input name="add_label" placeholder="e.g. Table 5, Sofa 2, Bar 1" required maxlength="40"><button class="btn" type="submit">+ Add table</button></form>
 ${error ? `<p class="error">${e(error)}</p>` : ''}
 <div class="panel table-wrap"><table><thead><tr><th>Table</th><th>Active orders today</th><th>Status</th><th>Actions</th></tr></thead>

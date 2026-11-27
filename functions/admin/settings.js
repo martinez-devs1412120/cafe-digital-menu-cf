@@ -155,33 +155,22 @@ ${savedMsg}${errorMsg}
 <div class="page-heading"><div><p class="eyebrow">SHOP CONFIGURATION</p><h1>Settings</h1><p class="muted">Café branding, public menu address, and team accounts.</p></div></div>
 
 <div class="panel panel-narrow">
-  <h2>Shop name</h2>
+  <h2>Café identity</h2>
   <form method="post">
     <input type="hidden" name="csrf" value="${e(csrfToken)}">
     <input type="hidden" name="section" value="brand">
-    <label>Shown on the customer menu and printed standee</label>
+    <label>Shop name — shown on the customer menu and printed standee</label>
     <input name="shop_name" required maxlength="60" value="${e(S.shop_name || 'SPARKS CAFE')}">
     <button class="btn" type="submit">Save shop name</button>
   </form>
-</div>
-
-<div class="panel panel-narrow">
-  <h2>Public menu address for QR codes</h2>
-  <p class="muted">The public HTTPS address customers use to open the menu. Example: <code>https://sparks-aurora.pages.dev</code></p>
   <form method="post">
     <input type="hidden" name="csrf" value="${e(csrfToken)}">
     <input type="hidden" name="section" value="menu">
-    <label>Base address (no trailing slash)</label>
+    <label>Public menu address for QR codes (no trailing slash)</label>
     <input name="menu_base_url" maxlength="200" inputmode="url" placeholder="https://sparks-aurora.pages.dev" value="${e(S.menu_base_url || '')}">
     <button class="btn" type="submit">Save menu address</button>
   </form>
   <p class="muted small-note">Current QR base: <span class="mono">${e(menuBaseUrl)}</span><br>Full menu URL: <span class="mono">${e(menuUrl)}</span></p>
-</div>
-
-<div class="panel panel-narrow">
-  <h2>Printable table standee</h2>
-  <p class="muted">One QR per table, with the table label and the menu link. Print, cut, place on the table.</p>
-  <a class="btn" href="/admin/standee_print" target="_blank">Open standee print sheet ↗</a>
 </div>
 
 <div class="panel panel-narrow">
