@@ -604,7 +604,20 @@ body.client-body .st-cancelled { background: rgba(226, 133, 122, .16); color: va
   max-width: 1200px;
   margin: 0 auto;
 }
-.tq-brandwrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tq-brandwrap { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tq-brandrow { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tq-brandchip {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: var(--c-cream);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-shadow: 0 4px 12px rgba(12, 8, 4, .35);
+}
+.tq-brandchip svg { width: 18px; height: 18px; fill: none; stroke: var(--c-oncream); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tq-brand {
   font-family: var(--serif);
   font-size: 19px;
@@ -826,6 +839,40 @@ button.tq-tablepick:hover { border-color: var(--c-gold); }
 .tq-hero-sub { margin: 9px 0 0; font-size: 13.5px; color: var(--c-muted); max-width: 46ch; position: relative; z-index: 1; line-height: 1.55; }
 .tq-hero-art { position: absolute; right: -10px; top: 2px; width: 150px; opacity: .5; pointer-events: none; }
 
+/* — today's special: the reference's hero product card — */
+.tq-specialwrap { max-width: 1200px; margin: 0 auto; padding: 18px 16px 4px; }
+.tq-card.tq-special {
+  border-radius: 26px;
+}
+.tq-card.tq-special .tq-cardimg { aspect-ratio: 5 / 3.4; }
+.tq-special .tq-cardbody { padding: 16px 16px 15px; gap: 6px; }
+.tq-special-eyebrow {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+}
+.tq-special .tq-cardname { font-size: 21px; line-height: 1.12; }
+.tq-special .tq-carddesc { -webkit-line-clamp: 2; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; font-size: 12px; }
+.tq-special .tq-cardprice { font-size: 16.5px; }
+.tq-ordernow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--c-cream);
+  color: var(--c-oncream);
+  border-radius: var(--r-pill);
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  transition: transform .15s;
+}
+.tq-ordernow i { font-style: normal; transition: transform .15s; }
+.tq-card:active .tq-ordernow { transform: scale(.96); }
+.tq-card:active .tq-ordernow i { transform: translateX(2px); }
+
 /* — best picks rail — */
 .tq-rail { max-width: 1200px; margin: 0 auto; padding: 20px 0 4px; }
 .tq-railhead {
@@ -898,7 +945,7 @@ button.tq-tablepick:hover { border-color: var(--c-gold); }
 }
 .tq-card:active { transform: scale(.977); }
 .tq-card.tq-inorder { border-color: rgba(226, 194, 144, .55); }
-.tq-cardimg { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--c-elev); flex: none; }
+.tq-cardimg { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: var(--c-elev); flex: none; }
 .tq-cardimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .tq-feat {
   position: absolute;
@@ -929,7 +976,7 @@ button.tq-tablepick:hover { border-color: var(--c-gold); }
   backdrop-filter: blur(4px);
 }
 .tq-cardbody { padding: 12px 13px 13px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
-.tq-cardname { font-family: var(--serif); font-size: 16.5px; font-weight: 600; line-height: 1.25; color: var(--c-cream); }
+.tq-cardname { font-family: var(--serif); font-size: 17.5px; font-weight: 600; line-height: 1.22; color: var(--c-cream); }
 .tq-carddesc {
   font-size: 11.5px;
   color: var(--c-muted);
@@ -1049,12 +1096,13 @@ button.tq-tablepick:hover { border-color: var(--c-gold); }
 }
 .sh-name {
   font-family: var(--serif);
-  font-size: 25px;
+  font-size: 27px;
   font-weight: 600;
   color: var(--c-cream);
-  margin: 4px 20px 0;
-  line-height: 1.15;
+  margin: 6px 20px 0;
+  line-height: 1.12;
 }
+.sh-byline { margin: 5px 20px 0; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--c-gold); }
 .sh-name .tq-feat { position: static; margin-left: 10px; vertical-align: middle; }
 .sh-desc { margin: 8px 20px 0; color: var(--c-muted); font-size: 14px; line-height: 1.55; }
 .sh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 20px 0; }
@@ -1096,7 +1144,9 @@ button.tq-tablepick:hover { border-color: var(--c-gold); }
 .sh-oat b { margin-left: auto; color: var(--c-gold); font-weight: 800; }
 .sh-row { margin: 16px 20px 0; }
 .sh-rowlabel {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: .14em;
@@ -1104,6 +1154,7 @@ button.tq-tablepick:hover { border-color: var(--c-gold); }
   color: var(--c-muted);
   margin-bottom: 9px;
 }
+.sh-rowlabel svg { width: 14px; height: 14px; fill: none; stroke: var(--c-gold); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .sh-pills { display: flex; flex-wrap: wrap; gap: 8px; }
 .sh-pill {
   background: var(--c-card);
@@ -1805,6 +1856,11 @@ button.tq-tablepick:hover { border-color: var(--c-gold); }
   .tq-sticky { padding-left: 40px; padding-right: 40px; }
   .tq-head { padding: 16px 0 10px; }
   .tq-brand { font-size: 20px; }
+  .tq-brandchip { width: 38px; height: 38px; border-radius: 13px; }
+  .tq-specialwrap { padding: 22px 0 6px; }
+  .tq-special { max-width: 780px; }
+  .tq-special .tq-cardimg { min-height: 210px; }
+  .tq-special .tq-cardname { font-size: 23px; }
   .tq-find { display: flex; gap: 20px; align-items: center; padding: 6px 0 12px; }
   .tq-searchrow { flex: 1; max-width: 560px; }
   .tq-search { max-width: 440px; flex: 1; }

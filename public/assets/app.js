@@ -97,6 +97,7 @@ function buildSheet() {
     '<button type="button" class="tq-sclose" id="tq-sclose" aria-label="Close">✕</button>' +
     '<div class="sh-img"><img src="' + escapeHtml(sheet.img) + '" alt=""></div>' +
     '<h3 class="sh-name">' + escapeHtml(sheet.name) + (sheet.feat ? ' <span class="tq-feat">BEST SELLER</span>' : '') + '</h3>' +
+    (shopName() ? '<div class="sh-byline">By ' + escapeHtml(shopName()) + '</div>' : '') +
     '<div class="sh-desc">' + escapeHtml(sheet.desc) + '</div>' +
     (sheet.tags ? '<div class="sh-tags">' + sheet.tags.split(',').map(function (t) { t = t.trim(); return t ? '<span class="tq-badge">' + escapeHtml(t.charAt(0).toUpperCase() + t.slice(1)) + '</span>' : ''; }).join('') + '</div>' : '') +
     (sheet.variants.length > 1
@@ -107,13 +108,13 @@ function buildSheet() {
       : '') +
     (showOat ? '<label class="sh-oat"><input type="checkbox" id="sh-oat" ' + (sheet.oat ? 'checked' : '') + '> Make it oat milk <b>+' + money(oat.price) + '</b></label>' : '') +
     (showCustom
-      ? '<div class="sh-row sh-sweet-row"><span class="sh-rowlabel">Sweetness</span><div class="sh-pills">' +
+      ? '<div class="sh-row sh-sweet-row"><span class="sh-rowlabel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 4.5 6 7.7 6 11a6 6 0 0 1-12 0c0-3.3 3-6.5 6-11z"/></svg>Sweetness</span><div class="sh-pills">' +
         [0, 25, 50, 75, 100].map(function (pct) {
           return '<button type="button" class="sh-pill sh-sweet' + (sheet.sweetness === pct ? ' on' : '') + '" data-pct="' + pct + '">' + pct + '%</button>';
         }).join('') + '</div></div>'
       : '') +
     (showCustom
-      ? '<div class="sh-row sh-size-row"><span class="sh-rowlabel">Size</span><div class="sh-pills">' +
+      ? '<div class="sh-row sh-size-row"><span class="sh-rowlabel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h7v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/><path d="M13 6h8v5a4 4 0 0 1-4 4 4 4 0 0 1-4-4z"/></svg>Size</span><div class="sh-pills">' +
         ['Small', 'Medium', 'Large'].map(function (sz) {
           var delta = sz === 'Small' ? -15 : (sz === 'Large' ? 20 : 0);
           var label = sz + (delta !== 0 ? ' (' + (delta > 0 ? '+' : '') + '₱' + Math.abs(delta) + ')' : '');
@@ -129,6 +130,7 @@ function sheetRefresh() {
   if (!sheet) return;
   buildSheet();
 }
+function shopName() { return (document.body.dataset && document.body.dataset.shop) || ''; }
 function addonsList() {
   try { return JSON.parse(document.getElementById('tq-addons').textContent || '[]') || []; } catch (e) { return []; }
 }

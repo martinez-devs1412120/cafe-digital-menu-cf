@@ -6,7 +6,8 @@
     "dev": "npx wrangler pages dev public",
     "deploy": "npx wrangler pages deploy public --project-name=sparks-aurora",
     "migrate:remote": "npx wrangler d1 execute sparks-cafe-db --remote --file=migrations/0001_schema.sql && npx wrangler d1 execute sparks-cafe-db --remote --file=migrations/0002_seed.sql",
-    "migrate:local": "npx wrangler d1 execute sparks-cafe-db --local --file=migrations/0001_schema.sql && npx wrangler d1 execute sparks-cafe-db --local --file=migrations/0002_seed.sql"
+    "migrate:local": "npx wrangler d1 execute sparks-cafe-db --local --file=migrations/0001_schema.sql && npx wrangler d1 execute sparks-cafe-db --local --file=migrations/0002_seed.sql",
+    "d1:dedupe": "npx wrangler d1 execute sparks-cafe-db --remote --file=migrations/0003_dedupe_products.sql"
   },
   "devDependencies": {
     "wrangler": "^3.60.0"

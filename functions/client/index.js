@@ -59,14 +59,25 @@ export async function onRequest(ctx) {
   for (const key of gorder) {
     const g = groups[key];
     if ((g.cat || '') === 'Add-ons') continue;
-    const variants = g.items.map(p => {
+    // Production databases can hold duplicate product rows (re-ran imports).
+    // Keep one row per product name — prefer an available copy, then lowest id.
+    const byName = new Map();
+    for (const p of g.items) {
+      const prev = byName.get(p.name);
+      if (!prev) { byName.set(p.name, p); continue; }
+      const prevAvail = parseInt(prev.is_available) === 1;
+      const pAvail = parseInt(p.is_available) === 1;
+      if ((pAvail && !prevAvail) || (pAvail === prevAvail && parseInt(p.id) < parseInt(prev.id))) byName.set(p.name, p);
+    }
+    const items = [...byName.values()];
+    const variants = items.map(p => {
       const m = p.name.match(/\((Hot|Iced)\)$/u);
       const tag = m ? m[1].toUpperCase() : '';
       return { id: parseInt(p.id), name: p.name, price: parseFloat(p.price), avail: parseInt(p.is_available) === 1, tag, image: p.image || null };
     });
     g.variants = variants;
     g.anyAvail = variants.some(v => v.avail);
-    g.feat = g.items.some(p => p.is_featured);
+    g.feat = items.some(p => p.is_featured);
     const prices = variants.map(v => v.price);
     g.priceLabel = [...new Set(prices)].length > 1
       ? fmtPrice(Math.min(...prices)) + ' / ' + fmtPrice(Math.max(...prices))
@@ -74,12 +85,13 @@ export async function onRequest(ctx) {
     const firstAvail = variants.filter(v => v.avail);
     const imgSrc = (firstAvail.length ? firstAvail : variants)[0];
     g.img = productImage(imgSrc.image, g.cat);
-    g.tags = g.items[0].allergen_tags || '';
+    g.tags = items[0].allergen_tags || '';
     g.basekey = md5Polyfill(key);
     if (g.anyAvail) cards.push(g); else outCards.push(g);
   }
 
-  const addonsRaw = all.filter(p => p.category === 'Add-ons' && parseInt(p.is_available) === 1);
+  const addonsSeen = new Set();
+  const addonsRaw = all.filter(p => p.category === 'Add-ons' && parseInt(p.is_available) === 1 && !addonsSeen.has(p.name) && addonsSeen.add(p.name));
   const addonsJson = JSON.stringify(addonsRaw.map(p => ({ id: parseInt(p.id), name: p.name, price: parseFloat(p.price) })));
 
   const success = url.searchParams.get('order') || '';
@@ -90,16 +102,35 @@ export async function onRequest(ctx) {
 
   const csrfToken = generateCsrf();
 
-  function renderCard(g, sold = false) {
+  function cardAttrs(g) {
+    return `data-basekey="${e(g.basekey)}" data-basename="${e(g.base)}" data-cat="${e(g.cat)}" data-feat="${e(String(g.feat ? 1 : 0))}" data-avail="${e(String(g.anyAvail ? 1 : 0))}" data-name="${e((g.base + ' ' + g.desc).toLowerCase())}"
+     data-variants="${e(JSON.stringify(g.variants))}"
+     data-img="${e(g.img)}" data-desc="${e(g.desc)}" data-pricelabel="${e(g.priceLabel)}" data-tags="${e(g.tags || '')}"`;
+  }
+
+  function renderCard(g, opts = {}) {
+    const sold = opts.sold || false;
+    const special = opts.special || false;
     const soldClass = sold ? ' tq-sold' : '';
     const badgesHtml = g.tags ? g.tags.split(',').map(tag => `<span class="tq-badge">${e(tag.trim().charAt(0).toUpperCase() + tag.trim().slice(1))}</span>`).join('') : '';
-    return `<div class="tq-card${soldClass}" data-basekey="${e(g.basekey)}" data-basename="${e(g.base)}" data-cat="${e(g.cat)}" data-feat="${e(String(g.feat ? 1 : 0))}" data-avail="${e(String(g.anyAvail ? 1 : 0))}" data-name="${e((g.base + ' ' + g.desc).toLowerCase())}"
-     data-variants="${e(JSON.stringify(g.variants))}"
-     data-img="${e(g.img)}" data-desc="${e(g.desc)}" data-pricelabel="${e(g.priceLabel)}" data-tags="${e(g.tags || '')}">
-  <div class="tq-cardimg"><img src="${e(g.img)}" alt="${e(g.base)}" loading="lazy">
+    const imgHtml = `<div class="tq-cardimg"><img src="${e(g.img)}" alt="${e(g.base)}" loading="lazy">
     ${g.feat ? '<span class="tq-feat">BEST SELLER</span>' : ''}
     ${!g.anyAvail ? '<span class="tq-soldbadge">SOLD OUT</span>' : ''}
+  </div>`;
+    if (special) {
+      return `<div class="tq-card${soldClass} tq-special" ${cardAttrs(g)}>
+  ${imgHtml}
+  <div class="tq-cardbody">
+    <span class="tq-special-eyebrow">Today's special</span>
+    <div class="tq-cardname">${e(g.base)}</div>
+    <div class="tq-carddesc">${e(g.desc)}</div>
+    ${badgesHtml ? `<div class="tq-badges">${badgesHtml}</div>` : ''}
+    <div class="tq-cardfoot"><span class="tq-cardprice">${e(g.priceLabel)}</span><span class="tq-ordernow">Order now <i>→</i></span></div>
   </div>
+</div>`;
+    }
+    return `<div class="tq-card${soldClass}" ${cardAttrs(g)}>
+  ${imgHtml}
   <div class="tq-cardbody">
     <div class="tq-cardname">${e(g.base)}</div>
     <div class="tq-carddesc">${e(g.desc)}</div>
@@ -111,10 +142,19 @@ export async function onRequest(ctx) {
 
   const catPillsHtml = cats.map(c => `<button data-cat="${e(c.name)}">${e(c.name)}</button>`).join('');
 
-  // Best picks rail: featured products as horizontally-scrollable cards.
-  // The cards reuse renderCard() so app.js treats them like any other card
-  // (tap-to-open sheet, live availability sync, qty chips).
-  const featCards = cards.filter(g => g.feat);
+  // Today's Special: the reference's hero product moment — the top best
+  // seller as a large image-led card. Falls back to the first available
+  // product; hidden entirely if nothing is available.
+  const special = cards.find(g => g.feat) || cards[0] || null;
+  const specialHtml = special ? `
+<section class="tq-specialwrap" aria-label="Today's special">
+  ${renderCard(special, { special: true })}
+</section>` : '';
+
+  // Best picks rail: other featured products as horizontally-scrollable
+  // cards. The cards reuse renderCard() so app.js treats them like any
+  // other card (tap-to-open sheet, live availability sync, qty chips).
+  const featCards = cards.filter(g => g.feat && (!special || g.basekey !== special.basekey));
   const railHtml = featCards.length ? `
 <section class="tq-rail" data-rail aria-label="Best picks">
   <div class="tq-railhead"><h2>Best picks for you</h2><button type="button" class="tq-viewbest" data-view-best>View all <i>→</i></button></div>
@@ -160,12 +200,15 @@ export async function onRequest(ctx) {
   </div>
 </div>` : '';
 
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#221b15"><title>Menu · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"><script src="/assets/vendor/qrcode.min.js"></script></head><body class="client-body tq" data-table-token="${e(dineTable ? tableToken : '')}" data-mode="${takeoutMode ? 'takeout' : 'normal'}">
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#221b15"><title>Menu · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"><script src="/assets/vendor/qrcode.min.js"></script></head><body class="client-body tq" data-table-token="${e(dineTable ? tableToken : '')}" data-mode="${takeoutMode ? 'takeout' : 'normal'}" data-shop="${e(shop)}">
 
 <div class="tq-sticky">
   <header class="tq-head">
     <div class="tq-brandwrap">
-      <span class="tq-brand">${e(shop.toUpperCase())}</span>
+      <div class="tq-brandrow">
+        <span class="tq-brandchip" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9h12v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8.5 5.5V3.5M12 5.5V3.5"/></svg></span>
+        <span class="tq-brand">${e(shop.toUpperCase())}</span>
+      </div>
       <span class="tq-live" id="tq-live">Live · availability updates by itself</span>
     </div>
     <div class="tq-headright">
@@ -197,6 +240,7 @@ export async function onRequest(ctx) {
 </div>
 
 ${heroHtml}
+${specialHtml}
 ${railHtml}
 
 <main class="tq-main" id="menu">
@@ -211,7 +255,7 @@ ${railHtml}
   ${outCards.length ? `
   <div class="tq-seclab">CURRENTLY UNAVAILABLE</div>
   <div class="tq-grid" id="tq-out">
-    ${outCards.map(g => renderCard(g, true)).join('\n')}
+    ${outCards.map(g => renderCard(g, { sold: true })).join('\n')}
   </div>` : ''}
 </main>
 
