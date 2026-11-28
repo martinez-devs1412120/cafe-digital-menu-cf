@@ -166,7 +166,7 @@ export async function onRequest(ctx) {
   const heroHtml = `
 <section class="tq-hero">
   <svg class="tq-hero-art" viewBox="0 0 140 140" fill="none" aria-hidden="true">
-    <g stroke="#e2c290" stroke-width="2" stroke-linecap="round">
+    <g stroke="#c2571b" stroke-width="2" stroke-linecap="round">
       <ellipse cx="62" cy="62" rx="15" ry="23" transform="rotate(-22 62 62)"/>
       <path d="M60 40c-8 9-3 15-9 24M66 42c6 8 3 13 9 20" transform="rotate(-22 62 62)"/>
       <ellipse cx="106" cy="96" rx="11" ry="17" transform="rotate(28 106 96)"/>
@@ -200,7 +200,7 @@ export async function onRequest(ctx) {
   </div>
 </div>` : '';
 
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#221b15"><title>Menu · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"><script src="/assets/vendor/qrcode.min.js"></script></head><body class="client-body tq" data-table-token="${e(dineTable ? tableToken : '')}" data-mode="${takeoutMode ? 'takeout' : 'normal'}" data-shop="${e(shop)}">
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fafaf8"><title>Menu · ${e(shop.toUpperCase())}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/style.css"><script src="/assets/vendor/qrcode.min.js"></script></head><body class="client-body tq" data-table-token="${e(dineTable ? tableToken : '')}" data-mode="${takeoutMode ? 'takeout' : 'normal'}" data-shop="${e(shop)}">
 
 <div class="tq-sticky">
   <header class="tq-head">

@@ -3,7 +3,7 @@ import { hashPassword } from '../_shared/auth.js';
 import { generateCsrf, setCsrfCookie, verifyCsrf } from '../_shared/csrf.js';
 
 function setupPageHtml(csrfToken, message, count) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Set up admin</title><link rel="stylesheet" href="/assets/style.css"></head>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Set up admin</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/style.css"></head>
 <body class="auth-page"><form class="auth-card" method="post"><p class="eyebrow">FIRST-TIME SETUP</p><h1>Create admin</h1>
 ${message ? `<div class="notice">${e(message)}</div>` : ''}
 ${count > 0

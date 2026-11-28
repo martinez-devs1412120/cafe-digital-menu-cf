@@ -72,7 +72,7 @@ export async function onRequest(ctx) {
     'This page updates itself — no need to refresh.'
   );
 
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#221b15"><title>Track order · ${e(shop.toUpperCase())}</title><link rel="stylesheet" href="/assets/style.css"></head><body class="client-body">
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fafaf8"><title>Track order · ${e(shop.toUpperCase())}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/style.css"></head><body class="client-body">
 <header class="client-header"><a class="brand" href="/client/">${e(shop.toUpperCase())}<span>COFFEE · COMMUNITY · COMFORT</span></a><div class="header-actions"><a class="outline-btn small-action" href="/client/">← Back to menu</a></div></header>
 <main class="track-main">
 <h1>Track your order</h1>
