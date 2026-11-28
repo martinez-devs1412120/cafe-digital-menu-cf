@@ -136,7 +136,7 @@ export async function onRequestPost(ctx) {
 }
 
 function loginPageHtml(brandName, csrfToken, error) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Staff Login · ${e(brandName)}</title><link rel="stylesheet" href="/assets/style.css"></head>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Staff Login · ${e(brandName)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/style.css"></head>
 <body class="auth-page"><form class="auth-card" method="post"><p class="eyebrow">${e(brandName.toUpperCase())} · STAFF</p><h1>Welcome back.</h1><p class="muted">Sign in to manage the menu and handle customer orders.</p>
 ${error ? `<div class="error">${e(error)}</div>` : ''}
 <input type="hidden" name="csrf" value="${e(csrfToken)}"><label>Username</label><input name="username" required maxlength="60" autocomplete="username"><label>Password</label><input type="password" name="password" required autocomplete="current-password"><button class="btn" type="submit">Sign in</button><a class="text-link" href="/client/">Open customer menu</a></form></body></html>`;
